@@ -1,5 +1,8 @@
 package ru.practicum.ewm.stats;
 
+import dto.EndpointHitDto;
+import dto.ViewStatsDto;
+
 import java.util.List;
 
 public interface StatsService {

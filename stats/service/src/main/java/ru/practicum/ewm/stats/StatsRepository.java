@@ -1,5 +1,6 @@
 package ru.practicum.ewm.stats;
 
+import dto.ViewStatsDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
     @Query("""
-            select new ru.practicum.ewm.stats.ViewStatsDto(eh.app, eh.uri, count(*))
+            select new dto.ViewStatsDto(eh.app, eh.uri, count(*))
             from EndpointHit as eh
             where eh.uri in ?3
             and eh.timestamp between ?1 and ?2
@@ -17,7 +18,7 @@ public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
     List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, List<String> uris);
 
     @Query("""
-            select new ru.practicum.ewm.stats.ViewStatsDto(eh.app, eh.uri, count(distinct eh.ip))
+            select new dto.ViewStatsDto(eh.app, eh.uri, count(distinct eh.ip))
             from EndpointHit as eh
             where eh.uri in ?3
             and eh.timestamp between ?1 and ?2

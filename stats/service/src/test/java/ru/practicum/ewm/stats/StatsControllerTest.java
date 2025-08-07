@@ -1,6 +1,8 @@
 package ru.practicum.ewm.stats;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.EndpointHitDto;
+import dto.ViewStatsDto;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

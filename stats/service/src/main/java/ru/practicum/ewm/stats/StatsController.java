@@ -1,5 +1,7 @@
 package ru.practicum.ewm.stats;
 
+import dto.EndpointHitDto;
+import dto.ViewStatsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -1,5 +1,7 @@
 package ru.practicum.ewm.stats;
 
+import dto.EndpointHitDto;
+
 public class EndpointHitMapper {
     public static EndpointHitDto mapToEndpointHitDto(EndpointHit endpointHit) {
         return new EndpointHitDto(
