@@ -36,14 +36,22 @@ public class StatsServiceImpl implements StatsService {
             if (endDate.isBefore(startDate)) {
                 throw new ValidationException("Конечная дата должна быть позже начальной");
             }
-            List<String> decodedUris = uris.stream()
-                    .map(uri -> UriUtils.decode(uri, StandardCharsets.UTF_8))
-                    .toList();
-
-            if (unique) {
-                return statsRepository.getUniqueViewStats(startDate, endDate, decodedUris);
+            if (uris == null || uris.isEmpty()) {
+                if (unique) {
+                    return statsRepository.getUniqueViewStats(startDate, endDate);
+                } else {
+                    return statsRepository.getViewStats(startDate, endDate);
+                }
             } else {
-                return statsRepository.getViewStats(startDate, endDate, decodedUris);
+                List<String> decodedUris = uris.stream()
+                        .map(uri -> UriUtils.decode(uri, StandardCharsets.UTF_8))
+                        .toList();
+
+                if (unique) {
+                    return statsRepository.getUniqueViewStatsByUris(startDate, endDate, decodedUris);
+                } else {
+                    return statsRepository.getViewStatsByUris(startDate, endDate, decodedUris);
+                }
             }
         } catch (DateTimeParseException e) {
             throw new ValidationException("Некорректный формат даты");

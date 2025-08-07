@@ -40,7 +40,7 @@ class StatsServiceImplTest {
     }
 
     @Test
-    void testGetViewStats() {
+    void testGetViewStatsWithUris() {
         LocalDateTime now = LocalDateTime.now();
         EndpointHitDto endpointHitDto1 = new EndpointHitDto("a", "/a", "0.0.0.0", now);
         EndpointHitDto endpointHitDto2 = new EndpointHitDto("a", "/a", "0.0.0.0", now.plusDays(1));
@@ -70,6 +70,47 @@ class StatsServiceImplTest {
         assertThat(viewStats.getFirst().getHits(), equalTo(1L));
 
         viewStats = statsService.getViewStats(start1, end1, List.of("/a", "/b"), true);
+
+        assertThat(viewStats.size(), equalTo(2));
+        assertThat(viewStats.getFirst().getUri(), equalTo("/a"));
+        assertThat(viewStats.getFirst().getHits(), equalTo(2L));
+        assertThat(viewStats.getLast().getUri(), equalTo("/b"));
+        assertThat(viewStats.getLast().getHits(), equalTo(1L));
+    }
+
+    @Test
+    void testGetViewStatsWithoutUris() {
+        LocalDateTime now = LocalDateTime.now();
+        EndpointHitDto endpointHitDto1 = new EndpointHitDto("a", "/a", "0.0.0.0", now);
+        EndpointHitDto endpointHitDto2 = new EndpointHitDto("a", "/a", "0.0.0.0", now.plusDays(1));
+        EndpointHitDto endpointHitDto3 = new EndpointHitDto("a", "/a", "1.0.0.0", now);
+        EndpointHitDto endpointHitDto4 = new EndpointHitDto("a", "/b", "1.0.0.0", now);
+
+        statsService.saveEndpointHit(endpointHitDto1);
+        statsService.saveEndpointHit(endpointHitDto2);
+        statsService.saveEndpointHit(endpointHitDto3);
+        statsService.saveEndpointHit(endpointHitDto4);
+
+        String start1 = UriUtils.encode(formatter.format(now.minusDays(1)), StandardCharsets.UTF_8);
+        String end1 = UriUtils.encode(formatter.format(now.plusDays(2)), StandardCharsets.UTF_8);
+
+        List<ViewStatsDto> viewStats = statsService.getViewStats(start1, end1, null, false);
+
+        assertThat(viewStats.size(), equalTo(2));
+        assertThat(viewStats.getFirst().getUri(), equalTo("/a"));
+        assertThat(viewStats.getFirst().getHits(), equalTo(3L));
+        assertThat(viewStats.getLast().getUri(), equalTo("/b"));
+        assertThat(viewStats.getLast().getHits(), equalTo(1L));
+
+        String start2 = UriUtils.encode(formatter.format(now.plusHours(1)), StandardCharsets.UTF_8);
+
+        viewStats = statsService.getViewStats(start2, end1, null, false);
+
+        assertThat(viewStats.size(), equalTo(1));
+        assertThat(viewStats.getFirst().getUri(), equalTo("/a"));
+        assertThat(viewStats.getFirst().getHits(), equalTo(1L));
+
+        viewStats = statsService.getViewStats(start1, end1, null, true);
 
         assertThat(viewStats.size(), equalTo(2));
         assertThat(viewStats.getFirst().getUri(), equalTo("/a"));
