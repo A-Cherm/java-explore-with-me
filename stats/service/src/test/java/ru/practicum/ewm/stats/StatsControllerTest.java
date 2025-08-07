@@ -35,7 +35,7 @@ class StatsControllerTest {
     private StatsService statsService;
 
     @Test
-    void saveEndpointHit() throws Exception {
+    void testSaveEndpointHit() throws Exception {
         EndpointHit endpointHit = new EndpointHit(1L, "a", "/a", "0.0.0.0",
                 LocalDateTime.from(formatter.parse("2000-01-01 00:30:00")));
         EndpointHitDto endpointHitDto = new EndpointHitDto("a", "/a", "0.0.0.0",
@@ -55,7 +55,7 @@ class StatsControllerTest {
     }
 
     @Test
-    void getViewStats() throws Exception {
+    void testGetViewStats() throws Exception {
         ViewStatsDto viewStatsDto = new ViewStatsDto("a", "/a", 1L);
         List<ViewStatsDto> viewStats = List.of(viewStatsDto);
         String start = UriUtils.encode("2000-01-01 00:30:00", StandardCharsets.UTF_8);
