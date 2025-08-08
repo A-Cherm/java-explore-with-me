@@ -22,16 +22,16 @@ import java.util.stream.Collectors;
 public class StatsClient {
     private final RestTemplate rest;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    @Value("${api.url}")
-    private String apiUrl;
+    private final String apiUrl;
 
     @Autowired
-    public StatsClient(RestTemplateBuilder builder) {
+    public StatsClient(@Value("${api.url}") String apiUrl, RestTemplateBuilder builder) {
         DefaultUriBuilderFactory defaultUriBuilderFactory = new DefaultUriBuilderFactory();
         defaultUriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
         this.rest = builder
                 .uriTemplateHandler(defaultUriBuilderFactory)
                 .build();
+        this.apiUrl = apiUrl;
     }
 
     public void saveEndpointHit(String app, String uri, String ip, LocalDateTime timestamp) {
