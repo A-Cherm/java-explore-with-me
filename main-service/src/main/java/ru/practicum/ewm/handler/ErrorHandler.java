@@ -35,7 +35,7 @@ public class ErrorHandler {
         return ErrorResponse.of(HttpStatus.CONFLICT, "Нарушение ограничений данных", e);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleExceptions(final Throwable e) {
         return ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "Неизвестная ошибка", e);
