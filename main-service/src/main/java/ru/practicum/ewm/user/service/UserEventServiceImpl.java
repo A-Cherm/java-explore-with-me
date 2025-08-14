@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.service.UserService;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.exception.DataConflictException;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.guest.service.GuestCategoryService;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -68,7 +67,7 @@ public class UserEventServiceImpl implements UserEventService {
         Long categoryId = eventDto.getCategory();
 
         if (event.getState() == EventState.PUBLISHED) {
-            throw new ValidationException("Некорректный запрос", "Нельзя редактировать опубликованное событие");
+            throw new DataConflictException("Некорректный запрос", "Нельзя редактировать опубликованное событие");
         }
         if (categoryId != null) {
             Category category = categoryService.validateCategory(categoryId);

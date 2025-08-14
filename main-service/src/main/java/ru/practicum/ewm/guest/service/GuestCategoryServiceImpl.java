@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.CategoryDto;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.QCategory;
@@ -24,14 +23,6 @@ public class GuestCategoryServiceImpl implements GuestCategoryService {
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        if (from != null && from < 0) {
-            throw new ValidationException("Некорректный параметр",
-                    "Параметр не может быть отрицательным: from = " + from);
-        }
-        if (size != null && size <= 0) {
-            throw new ValidationException("Некорректный параметр",
-                    "Параметр может быть только положительным: size = " + size);
-        }
         QCategory category = QCategory.category;
         JPAQuery<Category> jpaQuery = queryFactory.selectFrom(category);
 
