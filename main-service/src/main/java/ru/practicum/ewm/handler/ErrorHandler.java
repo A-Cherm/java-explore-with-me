@@ -1,11 +1,14 @@
 package ru.practicum.ewm.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 
@@ -23,16 +26,24 @@ public class ErrorHandler {
         return ErrorResponse.from(e);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class,
+            MethodArgumentNotValidException.class,
+            ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleArgumentTypeMismatch(final MethodArgumentTypeMismatchException e) {
-        return ErrorResponse.of(HttpStatus.BAD_REQUEST, "Некорректный тип параметров запроса", e);
+    public ErrorResponse handleArgumentTypeMismatch(final Exception e) {
+        return ErrorResponse.of(HttpStatus.BAD_REQUEST, "Некорректные параметры запроса", e);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConstraintViolation(final DataIntegrityViolationException e) {
         return ErrorResponse.of(HttpStatus.CONFLICT, "Нарушение ограничений данных", e);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDataConflict(final DataConflictException e) {
+        return ErrorResponse.from(e);
     }
 
     @ExceptionHandler(Throwable.class)
