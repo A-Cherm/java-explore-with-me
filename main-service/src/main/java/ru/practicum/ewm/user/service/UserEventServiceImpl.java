@@ -1,5 +1,9 @@
 package ru.practicum.ewm.user.service;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.service.UserService;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.exception.DataConflictException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.guest.service.GuestCategoryService;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.mapper.EventMapper;
+import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.*;
 import ru.practicum.ewm.repository.EventRepository;
+import ru.practicum.ewm.repository.RequestRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -22,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserEventServiceImpl implements UserEventService {
     private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
     private final GuestEventService guestEventService;
     private final GuestCategoryService categoryService;
     private final UserService userService;
@@ -30,15 +40,25 @@ public class UserEventServiceImpl implements UserEventService {
     @Override
     public List<EventShortDto> getEvents(Long userId, Integer from, Integer size) {
         QEvent event = QEvent.event;
-        JPAQuery<Event> jpaQuery = queryFactory
-                .selectFrom(event)
+        QRequest request = QRequest.request;
+        CaseBuilder caseBuilder = Expressions.cases();
+        NumberExpression<Long> confirmed = caseBuilder
+                .when(request.status.eq(RequestStatus.CONFIRMED))
+                .then(1L)
+                .otherwise(0L)
+                .sum();
+        JPAQuery<EventConfirmed> jpaQuery = queryFactory
+                .select(Projections.constructor(EventConfirmed.class, event, confirmed))
+                .from(request)
+                .rightJoin(request.event, event)
                 .where(event.initiator.id.eq(userId))
+                .groupBy(event)
                 .offset(from)
                 .limit(size);
-        List<Event> events = jpaQuery.fetch();
+        List<EventConfirmed> events = jpaQuery.fetch();
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventShortDto(event1, 0L, 0L))
+                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(), event1.getConfirmed(), 0L))
                 .toList();
     }
 
@@ -56,8 +76,9 @@ public class UserEventServiceImpl implements UserEventService {
     @Override
     public EventFullDto getEvent(Long userId, Long eventId) {
         Event event = guestEventService.validateEvent(eventId);
+        long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        return EventMapper.mapToEventFullDto(event, 0L, 0L);
+        return EventMapper.mapToEventFullDto(event, confirmed, 0L);
     }
 
     @Override
@@ -113,7 +134,76 @@ public class UserEventServiceImpl implements UserEventService {
             event.setParticipantLimit(eventDto.getParticipantLimit());
         }
         Event newEvent = eventRepository.save(event);
+        long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        return EventMapper.mapToEventFullDto(newEvent, 0L, 0L);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, 0L);
+    }
+
+    @Override
+    public List<RequestDto> getEventRequests(Long userId, Long eventId) {
+        guestEventService.validateEvent(eventId);
+        List<Request> requests = requestRepository.findAllByEventId(eventId);
+
+        return requests.stream()
+                .map(RequestMapper::mapToRequestDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public RequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, RequestStatusUpdateRequest update) {
+        Event event = guestEventService.validateEvent(eventId);
+        Long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        boolean isLimitReached = false;
+        List<Request> requests = requestRepository
+                .findAllByIdInAndEventId(new HashSet<>(update.getRequestIds()), eventId);
+        List<RequestDto> confirmedRequests = new ArrayList<>();
+        List<RequestDto> rejectedRequests = new ArrayList<>();
+
+        if (update.getStatus() == RequestStatus.CONFIRMED) {
+            if (event.getParticipantLimit() == 0 || !event.isRequestModeration()) {
+                return new RequestStatusUpdateResult(List.of(), List.of());
+            } else {
+                long freeSpots = event.getParticipantLimit() - confirmed;
+                if (requests.size() > freeSpots) {
+                    throw new DataConflictException("Нарушены условия запроса",
+                            "Достигнут предел участников события");
+                }
+                if (requests.size() == freeSpots) {
+                    isLimitReached = true;
+                }
+            }
+        } else if (update.getStatus() != RequestStatus.REJECTED) {
+            throw new ValidationException("Некорректный запрос",
+                    "Статус должен быть CONFIRMED или REJECTED");
+        }
+        for (Request request : requests) {
+            if (request.getStatus() != RequestStatus.PENDING) {
+                throw new DataConflictException("Нарушены условия запроса",
+                        "Заявка с id = " + request.getId() + " не в статусе PENDING");
+            }
+            request.setStatus(update.getStatus());
+        }
+        List<RequestDto> requestsDto = requests.stream()
+                .map(RequestMapper::mapToRequestDto)
+                .toList();
+
+        if (update.getStatus() == RequestStatus.CONFIRMED) {
+            confirmedRequests = requestsDto;
+        } else {
+            rejectedRequests = requestsDto;
+        }
+        requestRepository.saveAll(requests);
+
+        if (isLimitReached) {
+            List<Request> requestsToReject = requestRepository
+                    .findAllByEventIdAndStatus(eventId, RequestStatus.PENDING);
+            requestsToReject.forEach(request -> request.setStatus(RequestStatus.REJECTED));
+            rejectedRequests = requestsToReject.stream()
+                    .map(RequestMapper::mapToRequestDto)
+                    .toList();
+            requestRepository.saveAll(requestsToReject);
+        }
+        return new RequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
 }

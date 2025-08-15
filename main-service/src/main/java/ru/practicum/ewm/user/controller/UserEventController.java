@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
-import ru.practicum.ewm.dto.NewEventDto;
-import ru.practicum.ewm.dto.UpdateEventDto;
+import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.user.service.UserEventService;
 
 import java.util.List;
@@ -61,5 +58,24 @@ public class UserEventController {
 
         log.info("Обновлено событие: {}", event);
         return event;
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public List<RequestDto> getEventRequests(@PathVariable Long userId,
+                                             @PathVariable Long eventId) {
+        List<RequestDto> requests = eventService.getEventRequests(userId, eventId);
+
+        log.info("Возвращаются заявки к событию {}, {}", eventId, requests);
+        return requests;
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public RequestStatusUpdateResult updateRequestsStatus(@PathVariable Long userId,
+                                                          @PathVariable Long eventId,
+                                                          @RequestBody RequestStatusUpdateRequest update) {
+        RequestStatusUpdateResult result = eventService.updateRequestsStatus(userId, eventId, update);
+
+        log.info("Обновлён статус событий: {}", result);
+        return result;
     }
 }

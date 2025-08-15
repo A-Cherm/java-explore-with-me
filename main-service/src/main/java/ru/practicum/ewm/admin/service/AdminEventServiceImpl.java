@@ -1,5 +1,9 @@
 package ru.practicum.ewm.admin.service;
 
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +18,9 @@ import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.guest.service.GuestCategoryService;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.mapper.EventMapper;
-import ru.practicum.ewm.model.Category;
-import ru.practicum.ewm.model.Event;
-import ru.practicum.ewm.model.EventState;
-import ru.practicum.ewm.model.QEvent;
+import ru.practicum.ewm.model.*;
 import ru.practicum.ewm.repository.EventRepository;
+import ru.practicum.ewm.repository.RequestRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -31,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminEventServiceImpl implements AdminEventService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+    private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final GuestEventService guestEventService;
     private final GuestCategoryService categoryService;
@@ -42,8 +44,17 @@ public class AdminEventServiceImpl implements AdminEventService {
                                         String rangeStart, String rangeEnd, Integer from, Integer size) {
 
         QEvent event = QEvent.event;
-        JPAQuery<Event> jpaQuery = queryFactory.selectFrom(event);
-        Long currentParticipants = 50L;
+        QRequest request = QRequest.request;
+        CaseBuilder caseBuilder = Expressions.cases();
+        NumberExpression<Long> confirmed = caseBuilder
+                .when(request.status.eq(RequestStatus.CONFIRMED))
+                .then(1L)
+                .otherwise(0L)
+                .sum();
+        JPAQuery<EventConfirmed> jpaQuery = queryFactory
+                .select(Projections.constructor(EventConfirmed.class, event, confirmed))
+                .from(request)
+                .rightJoin(request.event, event);
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
 
@@ -74,12 +85,12 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (endDate != null) {
             jpaQuery.where(event.eventDate.before(endDate));
         }
-        jpaQuery.offset(from).limit(size);
+        jpaQuery.groupBy(event).offset(from).limit(size);
 
-        List<Event> events = jpaQuery.fetch();
+        List<EventConfirmed> events = jpaQuery.fetch();
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventFullDto(event1, currentParticipants, 0L))
+                .map(event1 -> EventMapper.mapToEventFullDto(event1.getEvent(), event1.getConfirmed(), 0L))
                 .toList();
     }
 
@@ -152,7 +163,8 @@ public class AdminEventServiceImpl implements AdminEventService {
             event.setParticipantLimit(eventDto.getParticipantLimit());
         }
         Event newEvent = eventRepository.save(event);
+        long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        return EventMapper.mapToEventFullDto(newEvent, 0L, 0L);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, 0L);
     }
 }

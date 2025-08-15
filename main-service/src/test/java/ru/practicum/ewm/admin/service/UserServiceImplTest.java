@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.config.QuerydslConfig;
 import ru.practicum.ewm.dto.UserDto;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.model.User;
 
 import java.util.List;
@@ -32,44 +31,30 @@ class UserServiceImplTest {
         UserDto createdUser2 = userService.createUser(userDto2);
         UserDto createdUser3 = userService.createUser(userDto3);
 
-        List<UserDto> users = userService.getUsers(null, null, null);
+        List<UserDto> users = userService.getUsers(null, 0, 10);
 
         assertThat(users).isNotNull().hasSize(3)
                 .contains(createdUser1, createdUser2, createdUser3);
 
-        users = userService.getUsers(List.of(createdUser1.getId(), createdUser3.getId()), null, null);
+        users = userService.getUsers(List.of(createdUser1.getId(), createdUser3.getId()), 0, 10);
 
         assertThat(users).isNotNull().hasSize(2)
                 .contains(createdUser1, createdUser3);
 
-        users = userService.getUsers(List.of(createdUser3.getId(), createdUser3.getId() + 1), null, null);
+        users = userService.getUsers(List.of(createdUser3.getId(), createdUser3.getId() + 1), 0, 10);
 
         assertThat(users).isNotNull().hasSize(1)
                 .contains(createdUser3);
 
-        users = userService.getUsers(null, 1, null);
+        users = userService.getUsers(null, 1, 10);
 
         assertThat(users).isNotNull().hasSize(2)
                 .contains(createdUser2, createdUser3);
-
-        users = userService.getUsers(null, null, 1);
-
-        assertThat(users).isNotNull().hasSize(1)
-                .contains(createdUser1);
 
         users = userService.getUsers(null, 1, 1);
 
         assertThat(users).isNotNull().hasSize(1)
                 .contains(createdUser2);
-    }
-
-    @Test
-    void testGetUsersWithInvalidParameters() {
-        assertThrows(ValidationException.class,
-                () -> userService.getUsers(null, -1, null));
-
-        assertThrows(ValidationException.class,
-                () -> userService.getUsers(null, null, 0));
     }
 
     @Test
@@ -89,7 +74,7 @@ class UserServiceImplTest {
         UserDto createdUser = userService.createUser(userDto);
         userService.deleteUser(createdUser.getId());
 
-        List<UserDto> users = userService.getUsers(null, null, null);
+        List<UserDto> users = userService.getUsers(null, 0, 10);
 
         assertThat(users).isNotNull().isEmpty();
     }

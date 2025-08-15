@@ -1,9 +1,6 @@
 package ru.practicum.ewm.user.service;
 
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
-import ru.practicum.ewm.dto.NewEventDto;
-import ru.practicum.ewm.dto.UpdateEventDto;
+import ru.practicum.ewm.dto.*;
 
 import java.util.List;
 
@@ -15,4 +12,8 @@ public interface UserEventService {
     EventFullDto getEvent(Long userId, Long eventId);
 
     EventFullDto updateEvent(Long userId, Long eventId, UpdateEventDto eventDto);
+
+    List<RequestDto> getEventRequests(Long userId, Long eventId);
+
+    RequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId, RequestStatusUpdateRequest update);
 }

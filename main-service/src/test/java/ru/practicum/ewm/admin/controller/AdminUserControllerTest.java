@@ -33,10 +33,10 @@ class AdminUserControllerTest {
     void testGetUsers() throws Exception {
         UserDto userDto = new UserDto(1L, "a", "a@mail");
 
-        when(userService.getUsers(null, null, null))
+        when(userService.getUsers(List.of(1L, 2L), 0, 3))
                 .thenReturn(List.of(userDto));
 
-        MvcResult result = mvc.perform(get("/admin/users")
+        MvcResult result = mvc.perform(get("/admin/users?ids=1,2&from=0&size=3")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -47,7 +47,7 @@ class AdminUserControllerTest {
         assertThat(userList).isNotNull().hasSize(1).contains(userDto);
 
         verify(userService, times(1))
-                .getUsers(null, null, null);
+                .getUsers(List.of(1L, 2L), 0, 3);
     }
 
     @Test
