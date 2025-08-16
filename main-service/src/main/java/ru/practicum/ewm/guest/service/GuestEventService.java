@@ -5,6 +5,7 @@ import ru.practicum.ewm.dto.EventShortDto;
 import ru.practicum.ewm.model.Event;
 
 import java.util.List;
+import java.util.Set;
 
 public interface GuestEventService {
     List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid,
@@ -12,6 +13,8 @@ public interface GuestEventService {
                                   String sort, Integer from, Integer size);
 
     EventFullDto getEvent(Long id);
+
+    List<EventShortDto> getEventsForCompilation(Set<Long> ids);
 
     Event validateEvent(Long id);
 }

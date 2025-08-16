@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -118,6 +119,29 @@ public class GuestEventServiceImpl implements GuestEventService {
         } else {
             throw new NotFoundException("Не найдено событие", "Нет события с id = " + id);
         }
+    }
+
+    @Override
+    public List<EventShortDto> getEventsForCompilation(Set<Long> ids) {
+        QEvent event = QEvent.event;
+        QRequest request = QRequest.request;
+        CaseBuilder caseBuilder = Expressions.cases();
+        NumberExpression<Long> confirmed = caseBuilder
+                .when(request.status.eq(RequestStatus.CONFIRMED))
+                .then(1L)
+                .otherwise(0L)
+                .sum();
+        JPAQuery<EventConfirmed> jpaQuery = queryFactory
+                .select(Projections.constructor(EventConfirmed.class, event, confirmed))
+                .from(request)
+                .rightJoin(request.event, event)
+                .where(event.id.in(ids))
+                .groupBy(event);
+        List<EventConfirmed> events = jpaQuery.fetch();
+
+        return events.stream()
+                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(), event1.getConfirmed(), 0L))
+                .toList();
     }
 
     @Override
