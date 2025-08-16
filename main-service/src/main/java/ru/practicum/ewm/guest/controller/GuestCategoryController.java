@@ -20,8 +20,8 @@ public class GuestCategoryController {
     private final GuestCategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getCategories(@PositiveOrZero @RequestParam(required = false) Integer from,
-                                           @Positive @RequestParam(required = false) Integer size) {
+    public List<CategoryDto> getCategories(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                           @Positive @RequestParam(defaultValue = "10") Integer size) {
         List<CategoryDto> categories = categoryService.getCategories(from, size);
 
         log.info("Возвращаются категории: {}", categories);

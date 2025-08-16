@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
 import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.Location;
 import ru.practicum.ewm.dto.UpdateEventDto;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.ValidationException;
@@ -99,6 +98,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     public EventFullDto updateEvent(Long eventId, UpdateEventDto eventDto) {
         Event event = guestEventService.validateEvent(eventId);
         Long categoryId = eventDto.getCategory();
+        LocalDateTime eventDate = eventDto.getEventDate();
 
         if (categoryId != null) {
             Category category = categoryService.validateCategory(categoryId);
@@ -126,25 +126,6 @@ public class AdminEventServiceImpl implements AdminEventService {
             default -> throw new DataConflictException("Нет прав для данного действия",
                     "Администраторы могут только публиковать и отменять события");
         }
-        String annotation = eventDto.getAnnotation();
-        String description = eventDto.getDescription();
-        String title = eventDto.getTitle();
-        Location location = eventDto.getLocation();
-        LocalDateTime eventDate = eventDto.getEventDate();
-
-        if (annotation != null && !annotation.isBlank()) {
-            event.setAnnotation(annotation);
-        }
-        if (description != null && !description.isBlank()) {
-            event.setDescription(description);
-        }
-        if (title != null && !title.isBlank()) {
-            event.setTitle(title);
-        }
-        if (location != null) {
-            event.setLocationLat(location.getLat());
-            event.setLocationLon(location.getLon());
-        }
         if (eventDate != null) {
             if (event.getPublishedOn() != null
                     && eventDate.isBefore(event.getPublishedOn().plusHours(1))) {
@@ -153,15 +134,7 @@ public class AdminEventServiceImpl implements AdminEventService {
             }
             event.setEventDate(eventDate);
         }
-        if (eventDto.getPaid() != null) {
-            event.setPaid(eventDto.getPaid());
-        }
-        if (eventDto.getRequestModeration() != null) {
-            event.setRequestModeration(eventDto.getRequestModeration());
-        }
-        if (eventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
+        Event.validateAndUpdateEvent(event, eventDto);
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 

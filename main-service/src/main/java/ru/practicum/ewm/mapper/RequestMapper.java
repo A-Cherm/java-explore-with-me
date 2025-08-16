@@ -19,9 +19,9 @@ public class RequestMapper {
         );
     }
 
-    public static Request mapToRequest(RequestDto requestDto, User user, Event event) {
+    public static Request mapToRequest(User user, Event event) {
         return new Request(
-                requestDto.getId(),
+                null,
                 user,
                 event,
                 LocalDateTime.now(),

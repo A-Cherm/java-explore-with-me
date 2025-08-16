@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.model.EventState;
@@ -30,6 +31,8 @@ class GuestEventControllerTest {
     private final ObjectMapper mapper;
     @MockBean
     private GuestEventService eventService;
+    @MockBean
+    private StatsClient statsClient;
 
     @Test
     void testGetEvents() throws Exception {

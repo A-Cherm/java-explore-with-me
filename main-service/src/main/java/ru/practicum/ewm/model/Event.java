@@ -2,7 +2,10 @@ package ru.practicum.ewm.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.practicum.ewm.dto.Location;
+import ru.practicum.ewm.dto.UpdateEventDto;
 import ru.practicum.ewm.exception.DataConflictException;
+import ru.practicum.ewm.exception.ValidationException;
 
 import java.time.LocalDateTime;
 
@@ -64,6 +67,50 @@ public class Event {
         if (date.isBefore(now.plusHours(2))) {
             throw new DataConflictException("Нарушены условия создания события",
                     "Поле eventDate должно содержать дату не раньше двух часов от текущей: " + date);
+        }
+    }
+
+    public static void validateAndUpdateEvent(Event event, UpdateEventDto eventDto) {
+        String annotation = eventDto.getAnnotation();
+        String description = eventDto.getDescription();
+        String title = eventDto.getTitle();
+        Location location = eventDto.getLocation();
+        LocalDateTime eventDate = eventDto.getEventDate();
+
+        if (annotation != null && annotation.isBlank()) {
+            throw new ValidationException("Некорректные данные запроса",
+                    "Аннотация не может состоять только из пробелов");
+        }
+        if (description != null && description.isBlank()) {
+            throw new ValidationException("Некорректные данные запроса",
+                    "Описание не может состоять только из пробелов");
+        }
+        if (title != null && title.isBlank()) {
+            throw new ValidationException("Некорректные данные запроса",
+                    "Заголовок не может состоять только из пробелов");
+        }
+
+        if (annotation != null) {
+            event.setAnnotation(annotation);
+        }
+        if (description != null) {
+            event.setDescription(description);
+        }
+        if (title != null) {
+            event.setTitle(title);
+        }
+        if (location != null) {
+            event.setLocationLat(location.getLat());
+            event.setLocationLon(location.getLon());
+        }
+        if (eventDto.getPaid() != null) {
+            event.setPaid(eventDto.getPaid());
+        }
+        if (eventDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventDto.getRequestModeration());
+        }
+        if (eventDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(eventDto.getParticipantLimit());
         }
     }
 }

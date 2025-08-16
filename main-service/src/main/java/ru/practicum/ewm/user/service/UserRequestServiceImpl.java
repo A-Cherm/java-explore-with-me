@@ -33,16 +33,16 @@ public class UserRequestServiceImpl implements UserRequestService {
 
     @Override
     @Transactional
-    public RequestDto createRequest(Long userId, RequestDto requestDto) {
+    public RequestDto createRequest(Long userId, Long eventId) {
         User user = userService.validateUser(userId);
-        Event event = eventService.validateEvent(requestDto.getEvent());
+        Event event = eventService.validateEvent(eventId);
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new DataConflictException("Невозможно выполнить запрос",
                     "Нельзя создать заявку на неопубликованное событие");
         }
         if (!requestRepository
-                .findAllByRequesterIdAndEventId(userId, requestDto.getEvent()).isEmpty()) {
+                .findAllByRequesterIdAndEventId(userId, eventId).isEmpty()) {
             throw new DataConflictException("Невозможно выполнить запрос",
                     "Нельзя создать повторную заявку");
         }
@@ -50,14 +50,14 @@ public class UserRequestServiceImpl implements UserRequestService {
             throw new DataConflictException("Невозможно выполнить запрос",
                     "Нельзя создать заявку на своё событие");
         }
-        if (event.getParticipantLimit() <= requestRepository
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository
                 .countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED)) {
             throw new DataConflictException("Невозможно выполнить запрос",
                     "Достигнут предел участников события");
         }
-        Request request = RequestMapper.mapToRequest(requestDto, user, event);
+        Request request = RequestMapper.mapToRequest(user, event);
 
-        if (!event.isRequestModeration()) {
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         }
         Request createdRequest = requestRepository.save(request);
@@ -71,6 +71,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         Request request = validateRequest(requestId);
 
         requestRepository.deleteById(requestId);
+        request.setStatus(RequestStatus.CANCELED);
         return RequestMapper.mapToRequestDto(request);
     }
 

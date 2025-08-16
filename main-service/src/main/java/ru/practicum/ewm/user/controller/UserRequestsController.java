@@ -27,8 +27,8 @@ public class UserRequestsController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RequestDto createRequest(@PathVariable Long userId,
-                                    @RequestBody RequestDto requestDto) {
-        RequestDto request = requestService.createRequest(userId, requestDto);
+                                    @RequestParam Long eventId) {
+        RequestDto request = requestService.createRequest(userId, eventId);
 
         log.info("Создана заявка {}", request);
         return request;

@@ -86,6 +86,7 @@ public class UserEventServiceImpl implements UserEventService {
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventDto eventDto) {
         Event event = guestEventService.validateEvent(eventId);
         Long categoryId = eventDto.getCategory();
+        LocalDateTime eventDate = eventDto.getEventDate();
 
         if (event.getState() == EventState.PUBLISHED) {
             throw new DataConflictException("Некорректный запрос", "Нельзя редактировать опубликованное событие");
@@ -101,38 +102,11 @@ public class UserEventServiceImpl implements UserEventService {
             default -> throw new DataConflictException("Нет прав для данного действия",
                     "Пользователи могут только отправлять и снимать события с ревью");
         }
-        String annotation = eventDto.getAnnotation();
-        String description = eventDto.getDescription();
-        String title = eventDto.getTitle();
-        Location location = eventDto.getLocation();
-        LocalDateTime eventDate = eventDto.getEventDate();
-
-        if (annotation != null && !annotation.isBlank()) {
-            event.setAnnotation(annotation);
-        }
-        if (description != null && !description.isBlank()) {
-            event.setDescription(description);
-        }
-        if (title != null && !title.isBlank()) {
-            event.setTitle(title);
-        }
-        if (location != null) {
-            event.setLocationLat(location.getLat());
-            event.setLocationLon(location.getLon());
-        }
         if (eventDate != null) {
             Event.validateEventDate(eventDate);
             event.setEventDate(eventDate);
         }
-        if (eventDto.getPaid() != null) {
-            event.setPaid(eventDto.getPaid());
-        }
-        if (eventDto.getRequestModeration() != null) {
-            event.setRequestModeration(eventDto.getRequestModeration());
-        }
-        if (eventDto.getParticipantLimit() != null) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
+        Event.validateAndUpdateEvent(event, eventDto);
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 

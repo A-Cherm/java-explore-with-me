@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.config.QuerydslConfig;
+import ru.practicum.ewm.dto.NewUserDto;
 import ru.practicum.ewm.dto.UserDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.User;
@@ -23,9 +24,9 @@ class UserServiceImplTest {
 
     @Test
     void testGetUsers() {
-        UserDto userDto1 = new UserDto(null, "a", "a@mail");
-        UserDto userDto2 = new UserDto(null, "b", "b@mail");
-        UserDto userDto3 = new UserDto(null, "c", "c@mail");
+        NewUserDto userDto1 = new NewUserDto("a", "a@mail");
+        NewUserDto userDto2 = new NewUserDto("b", "b@mail");
+        NewUserDto userDto3 = new NewUserDto("c", "c@mail");
 
         UserDto createdUser1 = userService.createUser(userDto1);
         UserDto createdUser2 = userService.createUser(userDto2);
@@ -59,18 +60,17 @@ class UserServiceImplTest {
 
     @Test
     void testCreateUser() {
-        UserDto userDto = new UserDto(null, "a", "a@mail");
+        NewUserDto userDto = new NewUserDto("a", "a@mail");
         UserDto createdUser = userService.createUser(userDto);
 
         assertThat(createdUser)
-                .usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(userDto);
+                .hasFieldOrPropertyWithValue("name", userDto.getName())
+                .hasFieldOrPropertyWithValue("email", userDto.getEmail());
     }
 
     @Test
     void testDeleteUser() {
-        UserDto userDto = new UserDto(null, "a", "a@mail");
+        NewUserDto userDto = new NewUserDto("a", "a@mail");
         UserDto createdUser = userService.createUser(userDto);
         userService.deleteUser(createdUser.getId());
 
@@ -81,7 +81,7 @@ class UserServiceImplTest {
 
     @Test
     void testValidateUser() {
-        UserDto userDto = new UserDto(null, "a", "a@mail");
+        NewUserDto userDto = new NewUserDto("a", "a@mail");
         UserDto createdUser = userService.createUser(userDto);
 
         User user = userService.validateUser(createdUser.getId());

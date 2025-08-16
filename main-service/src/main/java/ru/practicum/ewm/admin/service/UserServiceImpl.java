@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.dto.NewUserDto;
 import ru.practicum.ewm.dto.UserDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto createUser(UserDto userDto) {
+    public UserDto createUser(NewUserDto userDto) {
         User user = userRepository.save(UserMapper.mapToUser(userDto));
         return UserMapper.mapToUserDto(user);
     }

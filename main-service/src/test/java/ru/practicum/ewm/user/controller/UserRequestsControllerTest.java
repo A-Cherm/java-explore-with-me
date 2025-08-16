@@ -59,10 +59,10 @@ class UserRequestsControllerTest {
         LocalDateTime date = LocalDateTime.now();
         RequestDto requestDto = new RequestDto(1L, 2L, 3L, date, RequestStatus.PENDING);
 
-        when(requestService.createRequest(2L, requestDto))
+        when(requestService.createRequest(2L, 3L))
                 .thenReturn(requestDto);
 
-        MvcResult result = mvc.perform(post("/users/2/requests")
+        MvcResult result = mvc.perform(post("/users/2/requests?eventId=3")
                         .content(mapper.writeValueAsString(requestDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -75,7 +75,7 @@ class UserRequestsControllerTest {
         assertThat(createdRequest).isEqualTo(requestDto);
 
         verify(requestService, times(1))
-                .createRequest(2L, requestDto);
+                .createRequest(2L, 3L);
     }
 
     @Test

@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,7 +29,8 @@ public class ErrorHandler {
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class,
             MethodArgumentNotValidException.class,
-            ConstraintViolationException.class})
+            ConstraintViolationException.class,
+            MissingServletRequestParameterException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleArgumentTypeMismatch(final Exception e) {
         return ErrorResponse.of(HttpStatus.BAD_REQUEST, "Некорректные параметры запроса", e);

@@ -24,14 +24,11 @@ public class GuestCategoryServiceImpl implements GuestCategoryService {
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         QCategory category = QCategory.category;
-        JPAQuery<Category> jpaQuery = queryFactory.selectFrom(category);
+        JPAQuery<Category> jpaQuery = queryFactory
+                .selectFrom(category)
+                .offset(from)
+                .limit(size);
 
-        if (from != null) {
-            jpaQuery.offset(from);
-        }
-        if (size != null) {
-            jpaQuery.limit(size);
-        }
         List<Category> categories = jpaQuery.fetch();
 
         return categories.stream()

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.admin.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.admin.service.UserService;
+import ru.practicum.ewm.dto.NewUserDto;
 import ru.practicum.ewm.dto.UserDto;
 
 import java.util.List;
@@ -32,7 +34,7 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto createUser(@RequestBody UserDto userDto) {
+    public UserDto createUser(@Valid @RequestBody NewUserDto userDto) {
         UserDto createdUser = userService.createUser(userDto);
 
         log.info("Создан пользователь {}", createdUser);
@@ -40,6 +42,7 @@ public class AdminUserController {
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         log.info("Удалён пользователь с id = {}", userId);

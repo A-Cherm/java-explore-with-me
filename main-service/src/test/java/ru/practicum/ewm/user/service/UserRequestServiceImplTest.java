@@ -41,8 +41,8 @@ class UserRequestServiceImplTest {
     void setUp() {
         LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0).plusYears(1);
         Location location = new Location((float) 10.0, (float) 20.0);
-        userDto1 = userService.createUser(new UserDto(null, "a", "a@mail"));
-        userDto2 = userService.createUser(new UserDto(null, "b", "b@mail"));
+        userDto1 = userService.createUser(new NewUserDto("a", "a@mail"));
+        userDto2 = userService.createUser(new NewUserDto("b", "b@mail"));
         CategoryDto categoryDto = categoryService.createCategory(new CategoryDto(null, "abc"));
         eventDto = userEventService.createEvent(userDto1.getId(), new NewEventDto("a".repeat(20), categoryDto.getId(), "b".repeat(20), date,
                 location, true, 5, false, "c".repeat(5)));
@@ -53,8 +53,7 @@ class UserRequestServiceImplTest {
 
     @Test
     void testGetRequests() {
-        RequestDto requestDto = new RequestDto(null, userDto2.getId(), eventDto.getId(), null, null);
-        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), requestDto);
+        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), eventDto.getId());
 
         List<RequestDto> requests = requestService.getRequests(userDto2.getId());
 
@@ -64,8 +63,7 @@ class UserRequestServiceImplTest {
 
     @Test
     void testCreateRequest() {
-        RequestDto requestDto = new RequestDto(null, userDto2.getId(), eventDto.getId(), null, null);
-        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), requestDto);
+        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), eventDto.getId());
 
         assertThat(createdRequest)
                 .hasFieldOrPropertyWithValue("requester", userDto2.getId())
@@ -75,8 +73,7 @@ class UserRequestServiceImplTest {
 
     @Test
     void testCancelRequest() {
-        RequestDto requestDto = new RequestDto(null, userDto2.getId(), eventDto.getId(), null, null);
-        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), requestDto);
+        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), eventDto.getId());
 
         RequestDto cancelledRequest = requestService.cancelRequest(userDto2.getId(), createdRequest.getId());
 
@@ -85,8 +82,7 @@ class UserRequestServiceImplTest {
 
     @Test
     void testValidateRequest() {
-        RequestDto requestDto = new RequestDto(null, userDto2.getId(), eventDto.getId(), null, null);
-        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), requestDto);
+        RequestDto createdRequest = requestService.createRequest(userDto2.getId(), eventDto.getId());
         User user = new User(userDto2.getId(), userDto2.getName(), userDto2.getEmail());
         Request request = requestService.validateRequest(createdRequest.getId());
 

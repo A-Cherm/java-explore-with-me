@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.ewm.admin.service.UserService;
+import ru.practicum.ewm.dto.NewUserDto;
 import ru.practicum.ewm.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
@@ -52,8 +53,8 @@ class AdminUserControllerTest {
 
     @Test
     void testCreateUser() throws Exception {
-        UserDto userDto = new UserDto(null, "a", "a@mail");
-        UserDto createdUserDto = new UserDto(1L, "a", "a@mail");
+        NewUserDto userDto = new NewUserDto("aa", "a@mail");
+        UserDto createdUserDto = new UserDto(1L, "aa", "a@mail");
 
         when(userService.createUser(userDto))
                 .thenReturn(createdUserDto);

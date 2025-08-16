@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,15 +19,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewEventDto {
-    @NotNull
+    @NotBlank
     @Length(min = 20, max = 2000)
     private String annotation;
     @NotNull
     private Long category;
-    @NotNull
+    @NotBlank
     @Length(min = 20, max = 7000)
     private String description;
     @NotNull
+    @Future
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull
@@ -32,11 +36,12 @@ public class NewEventDto {
     private Location location;
     @JsonSetter(nulls = Nulls.SKIP)
     private Boolean paid = false;
+    @PositiveOrZero
     @JsonSetter(nulls = Nulls.SKIP)
     private Integer participantLimit = 0;
     @JsonSetter(nulls = Nulls.SKIP)
     private Boolean requestModeration = true;
-    @NotNull
+    @NotBlank
     @Length(min = 3, max = 120)
     private String title;
 }

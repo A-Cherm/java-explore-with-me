@@ -41,7 +41,7 @@ class UserEventServiceImplTest {
     void setup() {
         date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0).plusYears(1);
         location = new Location((float) 10.0, (float) 20.0);
-        userDto = userService.createUser(new UserDto(null, "a", "a@mail"));
+        userDto = userService.createUser(new NewUserDto("a", "a@mail"));
         categoryDto = categoryService.createCategory(new CategoryDto(null, "abc"));
         newEventDto = new NewEventDto("a".repeat(20), categoryDto.getId(), "b".repeat(20), date,
                 location, true, 5, false, "c".repeat(5));
