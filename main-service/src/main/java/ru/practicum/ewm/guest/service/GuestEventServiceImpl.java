@@ -6,11 +6,13 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import dto.ViewStatsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.dto.EventFullDto;
 import ru.practicum.ewm.dto.EventShortDto;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -24,8 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,6 +36,7 @@ public class GuestEventServiceImpl implements GuestEventService {
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final JPAQueryFactory queryFactory;
+    private final StatsClient statsClient;
 
     @Override
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid,
@@ -103,10 +105,19 @@ public class GuestEventServiceImpl implements GuestEventService {
         jpaQuery.offset(from).limit(size);
 
         List<EventConfirmed> events = jpaQuery.fetch();
-
-        return events.stream()
-                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(), event1.getConfirmed(), 0L))
+        List<Long> ids = events.stream()
+                .map(eventConfirmed -> eventConfirmed.getEvent().getId())
                 .toList();
+        Map<Long, Long> views = getViewsForEvents(ids);
+        List<EventShortDto> eventsList = new ArrayList<>(events.stream()
+                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(),
+                        event1.getConfirmed(), views.get(event1.getEvent().getId())))
+                .toList());
+
+        if (sort != null && sort.equals("VIEWS")) {
+            eventsList.sort(Comparator.comparing(EventShortDto::getViews).reversed());
+        }
+        return eventsList;
     }
 
     @Override
@@ -114,8 +125,9 @@ public class GuestEventServiceImpl implements GuestEventService {
         Event event = validateEvent(id);
 
         if (event.getState() == EventState.PUBLISHED) {
+            long views = getViewsForEvent(id);
             long confirmed = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
-            return EventMapper.mapToEventFullDto(event, confirmed, 0L);
+            return EventMapper.mapToEventFullDto(event, confirmed, views);
         } else {
             throw new NotFoundException("Не найдено событие", "Нет события с id = " + id);
         }
@@ -138,10 +150,45 @@ public class GuestEventServiceImpl implements GuestEventService {
                 .where(event.id.in(ids))
                 .groupBy(event);
         List<EventConfirmed> events = jpaQuery.fetch();
+        Map<Long, Long> viewStats = getViewsForEvents(ids.stream().toList());
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(), event1.getConfirmed(), 0L))
+                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(),
+                        event1.getConfirmed(), viewStats.get(event1.getEvent().getId())))
                 .toList();
+    }
+
+    @Override
+    public Long getViewsForEvent(Long id) {
+        LocalDateTime now = LocalDateTime.now();
+        String uri = "/events/" + id;
+        List<ViewStatsDto> viewStats = statsClient.getViewStats(now.minusYears(1), now, List.of(uri), true);
+
+        if (viewStats.isEmpty()) {
+            return 0L;
+        } else {
+            return viewStats.getFirst().getHits();
+        }
+    }
+
+    @Override
+    public Map<Long, Long> getViewsForEvents(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        List<String> uris = ids.stream()
+                .map(id -> "/events/" + id)
+                .toList();
+        List<ViewStatsDto> viewStats = statsClient.getViewStats(now.minusYears(1), now, uris, true);
+        Map<Long, Long> views = new HashMap<>();
+        ids.forEach(id -> views.put(id, 0L));
+
+        for (ViewStatsDto viewStat : viewStats) {
+            String[] uriSplit = viewStat.getUri().split("/");
+            views.put(Long.parseLong(uriSplit[uriSplit.length - 1]), viewStat.getHits());
+        }
+        return views;
     }
 
     @Override

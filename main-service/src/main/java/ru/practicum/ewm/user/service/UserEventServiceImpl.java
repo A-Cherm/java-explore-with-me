@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,9 +57,14 @@ public class UserEventServiceImpl implements UserEventService {
                 .offset(from)
                 .limit(size);
         List<EventConfirmed> events = jpaQuery.fetch();
+        List<Long> ids = events.stream()
+                .map(eventConfirmed -> eventConfirmed.getEvent().getId())
+                .toList();
+        Map<Long, Long> views = guestEventService.getViewsForEvents(ids);
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(), event1.getConfirmed(), 0L))
+                .map(event1 -> EventMapper.mapToEventShortDto(event1.getEvent(),
+                        event1.getConfirmed(), views.get(event1.getEvent().getId())))
                 .toList();
     }
 
@@ -77,8 +83,9 @@ public class UserEventServiceImpl implements UserEventService {
     public EventFullDto getEvent(Long userId, Long eventId) {
         Event event = guestEventService.validateEvent(eventId);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long views = guestEventService.getViewsForEvent(eventId);
 
-        return EventMapper.mapToEventFullDto(event, confirmed, 0L);
+        return EventMapper.mapToEventFullDto(event, confirmed, views);
     }
 
     @Override
@@ -98,7 +105,8 @@ public class UserEventServiceImpl implements UserEventService {
         switch (eventDto.getStateAction()) {
             case CANCEL_REVIEW -> event.setState(EventState.CANCELED);
             case SEND_TO_REVIEW -> event.setState(EventState.PENDING);
-            case null -> {}
+            case null -> {
+            }
             default -> throw new DataConflictException("Нет прав для данного действия",
                     "Пользователи могут только отправлять и снимать события с ревью");
         }
@@ -109,8 +117,9 @@ public class UserEventServiceImpl implements UserEventService {
         Event.validateAndUpdateEvent(event, eventDto);
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long views = guestEventService.getViewsForEvent(eventId);
 
-        return EventMapper.mapToEventFullDto(newEvent, confirmed, 0L);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, views);
     }
 
     @Override

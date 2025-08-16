@@ -5,6 +5,7 @@ import ru.practicum.ewm.dto.EventShortDto;
 import ru.practicum.ewm.model.Event;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface GuestEventService {
@@ -15,6 +16,10 @@ public interface GuestEventService {
     EventFullDto getEvent(Long id);
 
     List<EventShortDto> getEventsForCompilation(Set<Long> ids);
+
+    Long getViewsForEvent(Long id);
+
+    Map<Long, Long> getViewsForEvents(List<Long> ids);
 
     Event validateEvent(Long id);
 }

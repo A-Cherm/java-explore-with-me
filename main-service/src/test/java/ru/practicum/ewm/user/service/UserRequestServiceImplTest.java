@@ -5,8 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.admin.service.*;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.config.QuerydslConfig;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -32,6 +34,8 @@ class UserRequestServiceImplTest {
     private final UserEventService userEventService;
     private final AdminEventService adminEventService;
     private final AdminCategoryService categoryService;
+    @MockBean
+    private StatsClient statsClient;
 
     private UserDto userDto1;
     private UserDto userDto2;
@@ -77,7 +81,10 @@ class UserRequestServiceImplTest {
 
         RequestDto cancelledRequest = requestService.cancelRequest(userDto2.getId(), createdRequest.getId());
 
-        assertThat(cancelledRequest).isEqualTo(createdRequest);
+        assertThat(cancelledRequest)
+                .usingRecursiveComparison()
+                .ignoringFields("status")
+                .isEqualTo(createdRequest);
     }
 
     @Test

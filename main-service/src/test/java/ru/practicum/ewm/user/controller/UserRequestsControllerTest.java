@@ -33,7 +33,7 @@ class UserRequestsControllerTest {
 
     @Test
     void testGetRequests() throws Exception {
-        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0);
         RequestDto requestDto = new RequestDto(1L, 2L, 3L, date, RequestStatus.PENDING);
 
         when(requestService.getRequests(2L))
@@ -56,7 +56,7 @@ class UserRequestsControllerTest {
 
     @Test
     void testCreateRequest() throws Exception {
-        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0);
         RequestDto requestDto = new RequestDto(1L, 2L, 3L, date, RequestStatus.PENDING);
 
         when(requestService.createRequest(2L, 3L))
@@ -80,7 +80,7 @@ class UserRequestsControllerTest {
 
     @Test
     void testCancelRequest() throws Exception {
-        LocalDateTime date = LocalDateTime.now();
+        LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0);
         RequestDto requestDto = new RequestDto(1L, 2L, 3L, date, RequestStatus.PENDING);
 
         when(requestService.cancelRequest(2L, 1L))

@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,7 +42,6 @@ public class AdminEventServiceImpl implements AdminEventService {
     @Override
     public List<EventFullDto> getEvents(List<Long> users, List<EventState> states, List<Long> categories,
                                         String rangeStart, String rangeEnd, Integer from, Integer size) {
-
         QEvent event = QEvent.event;
         QRequest request = QRequest.request;
         CaseBuilder caseBuilder = Expressions.cases();
@@ -87,9 +87,14 @@ public class AdminEventServiceImpl implements AdminEventService {
         jpaQuery.groupBy(event).offset(from).limit(size);
 
         List<EventConfirmed> events = jpaQuery.fetch();
+        List<Long> ids = events.stream()
+                .map(eventConfirmed -> eventConfirmed.getEvent().getId())
+                .toList();
+        Map<Long, Long> views = guestEventService.getViewsForEvents(ids);
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventFullDto(event1.getEvent(), event1.getConfirmed(), 0L))
+                .map(event1 -> EventMapper.mapToEventFullDto(event1.getEvent(),
+                        event1.getConfirmed(), views.get(event1.getEvent().getId())))
                 .toList();
     }
 
@@ -122,7 +127,8 @@ public class AdminEventServiceImpl implements AdminEventService {
                     event.setState(EventState.CANCELED);
                 }
             }
-            case null -> {}
+            case null -> {
+            }
             default -> throw new DataConflictException("Нет прав для данного действия",
                     "Администраторы могут только публиковать и отменять события");
         }
@@ -137,7 +143,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         Event.validateAndUpdateEvent(event, eventDto);
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long views = guestEventService.getViewsForEvent(eventId);
 
-        return EventMapper.mapToEventFullDto(newEvent, confirmed, 0L);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, views);
     }
 }

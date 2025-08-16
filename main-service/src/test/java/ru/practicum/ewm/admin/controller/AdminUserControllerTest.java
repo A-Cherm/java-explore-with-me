@@ -80,7 +80,7 @@ class AdminUserControllerTest {
         mvc.perform(delete("/admin/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(userService, times(1))
                 .deleteUser(1L);

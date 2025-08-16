@@ -5,11 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.admin.service.AdminCategoryService;
 import ru.practicum.ewm.admin.service.AdminCategoryServiceImpl;
 import ru.practicum.ewm.admin.service.UserService;
 import ru.practicum.ewm.admin.service.UserServiceImpl;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.config.QuerydslConfig;
 import ru.practicum.ewm.dto.*;
 import ru.practicum.ewm.guest.service.GuestCategoryServiceImpl;
@@ -29,6 +31,8 @@ class UserEventServiceImplTest {
     private final UserEventService eventService;
     private final UserService userService;
     private final AdminCategoryService categoryService;
+    @MockBean
+    private StatsClient statsClient;
 
     private LocalDateTime date;
     private Location location;

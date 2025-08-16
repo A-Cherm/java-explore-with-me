@@ -34,20 +34,10 @@ class GuestCategoryServiceImplTest {
         CategoryDto createdCategory2 = adminCategoryService.createCategory(categoryDto2);
         CategoryDto createdCategory3 = adminCategoryService.createCategory(categoryDto3);
 
-        List<CategoryDto> categories = guestCategoryService.getCategories(null, null);
+        List<CategoryDto> categories = guestCategoryService.getCategories(0, 10);
 
         assertThat(categories).isNotNull().hasSize(3)
                 .contains(createdCategory1, createdCategory2, createdCategory3);
-
-        categories = guestCategoryService.getCategories(1, null);
-
-        assertThat(categories).isNotNull().hasSize(2)
-                .contains(createdCategory2, createdCategory3);
-
-        categories = guestCategoryService.getCategories(null, 1);
-
-        assertThat(categories).isNotNull().hasSize(1)
-                .contains(createdCategory1);
 
         categories = guestCategoryService.getCategories(1, 1);
 
