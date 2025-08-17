@@ -94,9 +94,10 @@ class UserRequestServiceImplTest {
         Request request = requestService.validateRequest(createdRequest.getId());
 
         assertThat(request)
-                .hasFieldOrPropertyWithValue("requester", user)
+                .hasFieldOrProperty("requester")
                 .hasFieldOrProperty("event")
                 .hasFieldOrProperty("created");
+        assertThat(request.getRequester().getName()).isEqualTo(user.getName());
         assertThrows(NotFoundException.class,
                 () -> requestService.validateRequest(createdRequest.getId() + 1));
     }
