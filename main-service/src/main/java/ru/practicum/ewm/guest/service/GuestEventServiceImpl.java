@@ -100,7 +100,7 @@ public class GuestEventServiceImpl implements GuestEventService {
         jpaQuery.groupBy(event);
         if (onlyAvailable) {
             jpaQuery.having(event.participantLimit.eq(0)
-                    .or(event.participantLimit.lt(confirmed)));
+                    .or(event.participantLimit.gt(confirmed)));
         }
         jpaQuery.offset(from).limit(size);
 
