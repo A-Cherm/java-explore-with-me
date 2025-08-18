@@ -63,7 +63,7 @@ class UserEventControllerTest {
         NewEventDto newEventDto = new NewEventDto("a".repeat(20), 1L, "b".repeat(20), date,
                 new Location((float) 10.0, (float) 20.0), true, 5, false, "c".repeat(5));
         EventFullDto eventFullDto = new EventFullDto(1L, "a", new CategoryDto(1L, "a"),
-                2L, date, "b", date, new UserShortDto(1L, "a"),
+                List.of(), 2L, date, "b", date, new UserShortDto(1L, "a"),
                 new Location((float) 10.0, (float) 20.0), true, 5, date,
                 false, EventState.PENDING, "d", 10L);
 
@@ -90,7 +90,7 @@ class UserEventControllerTest {
     void testGetEvent() throws Exception {
         LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0).plusYears(1);
         EventFullDto eventFullDto = new EventFullDto(1L, "a", new CategoryDto(1L, "a"),
-                2L, date, "b", date, new UserShortDto(1L, "a"),
+                List.of(), 2L, date, "b", date, new UserShortDto(1L, "a"),
                 new Location((float) 10.0, (float) 20.0), true, 5, date,
                 false, EventState.PENDING, "d", 10L);
 
@@ -117,7 +117,7 @@ class UserEventControllerTest {
         UpdateEventDto updateEventDto = new UpdateEventDto();
         updateEventDto.setTitle("c".repeat(10));
         EventFullDto eventFullDto = new EventFullDto(1L, "a", new CategoryDto(1L, "a"),
-                2L, date, "b", date, new UserShortDto(1L, "a"),
+                List.of(), 2L, date, "b", date, new UserShortDto(1L, "a"),
                 new Location((float) 10.0, (float) 20.0), true, 5, date,
                 false, EventState.PENDING, "d", 10L);
 

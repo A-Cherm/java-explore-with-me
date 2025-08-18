@@ -17,7 +17,7 @@ public class CommentMapper {
         );
     }
 
-    public static Comment mapToComment(NewCommentDto commentDto , User user, Long eventId) {
+    public static Comment mapToComment(NewCommentDto commentDto, User user, Long eventId) {
         return new Comment(
                 null,
                 user,

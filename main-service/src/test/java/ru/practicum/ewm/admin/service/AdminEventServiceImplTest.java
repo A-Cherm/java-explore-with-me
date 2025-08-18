@@ -10,12 +10,16 @@ import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.config.QuerydslConfig;
 import ru.practicum.ewm.dto.category.CategoryDto;
+import ru.practicum.ewm.dto.comment.CommentDto;
+import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.user.NewUserDto;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.guest.service.GuestCategoryServiceImpl;
 import ru.practicum.ewm.guest.service.GuestEventServiceImpl;
 import ru.practicum.ewm.model.EventState;
+import ru.practicum.ewm.user.service.UserCommentService;
+import ru.practicum.ewm.user.service.UserCommentServiceImpl;
 import ru.practicum.ewm.user.service.UserEventService;
 import ru.practicum.ewm.user.service.UserEventServiceImpl;
 
@@ -27,13 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import({GuestEventServiceImpl.class, GuestCategoryServiceImpl.class, QuerydslConfig.class,
         UserServiceImpl.class, AdminCategoryServiceImpl.class, AdminEventServiceImpl.class,
-        UserEventServiceImpl.class})
+        UserEventServiceImpl.class, UserCommentServiceImpl.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class AdminEventServiceImplTest {
     private final AdminEventService adminEventService;
     private final UserService userService;
     private final AdminCategoryService categoryService;
     private final UserEventService userEventService;
+    private final UserCommentService userCommentService;
     @MockBean
     private StatsClient statsClient;
 
@@ -44,6 +49,8 @@ class AdminEventServiceImplTest {
     private CategoryDto categoryDto2;
     private EventFullDto eventFullDto1;
     private EventFullDto eventFullDto2;
+    private CommentDto commentDto1;
+    private CommentDto commentDto2;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +73,14 @@ class AdminEventServiceImplTest {
     void testGetEvents() {
         UpdateEventDto updateEventDto = new UpdateEventDto();
         updateEventDto.setStateAction(EventStateAction.PUBLISH_EVENT);
+        eventFullDto1 = adminEventService.updateEvent(eventFullDto1.getId(), updateEventDto);
         eventFullDto2 = adminEventService.updateEvent(eventFullDto2.getId(), updateEventDto);
+        commentDto1 = userCommentService.createComment(userDto2.getId(), eventFullDto1.getId(),
+                new NewCommentDto("aaa"));
+        commentDto2 = userCommentService.createComment(userDto1.getId(), eventFullDto2.getId(),
+                new NewCommentDto("bbb"));
+        eventFullDto1 = userEventService.getEvent(userDto1.getId(), eventFullDto1.getId());
+        eventFullDto2 = userEventService.getEvent(userDto2.getId(), eventFullDto2.getId());
 
         List<EventFullDto> events = adminEventService.getEvents(null, null, null,
                 null, null, 0, 2);
@@ -91,12 +105,12 @@ class AdminEventServiceImplTest {
         events = adminEventService.getEvents(null, List.of(EventState.PUBLISHED), null,
                 null, null, 0, 2);
 
-        assertThat(events).hasSize(1).contains(eventFullDto2);
+        assertThat(events).hasSize(2).contains(eventFullDto1, eventFullDto2);
 
-        events = adminEventService.getEvents(null, List.of(EventState.PUBLISHED), null,
+        events = adminEventService.getEvents(null, List.of(EventState.PENDING), null,
                 null, null, 0, 2);
 
-        assertThat(events).hasSize(1).contains(eventFullDto2);
+        assertThat(events).isEmpty();
     }
 
     @Test

@@ -70,7 +70,7 @@ class GuestEventControllerTest {
     void testGetEvent() throws Exception {
         LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0).plusYears(1);
         EventFullDto eventFullDto = new EventFullDto(1L, "a", new CategoryDto(1L, "a"),
-                2L, date, "b", date, new UserShortDto(1L, "a"),
+                List.of(), 2L, date, "b", date, new UserShortDto(1L, "a"),
                 new Location((float) 10.0, (float) 20.0), true, 5, date,
                 false, EventState.PENDING, "d", 10L);
 
