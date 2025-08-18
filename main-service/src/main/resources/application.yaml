@@ -17,3 +17,5 @@ spring:
     url: jdbc:postgresql://localhost:5433/maindb
     username: maindb
     password: maindb
+  application:
+    name: ewm-main-service

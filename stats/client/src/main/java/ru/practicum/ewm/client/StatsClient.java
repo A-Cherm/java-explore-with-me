@@ -2,12 +2,9 @@ package ru.practicum.ewm.client;
 
 import dto.EndpointHitDto;
 import dto.ViewStatsDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriUtils;
@@ -18,14 +15,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 public class StatsClient {
     private final RestTemplate rest;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final String apiUrl;
 
-    @Autowired
-    public StatsClient(@Value("${api.url}") String apiUrl, RestTemplateBuilder builder) {
+    public StatsClient(String apiUrl, RestTemplateBuilder builder) {
         DefaultUriBuilderFactory defaultUriBuilderFactory = new DefaultUriBuilderFactory();
         defaultUriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
         this.rest = builder
