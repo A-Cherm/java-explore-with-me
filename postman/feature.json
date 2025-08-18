@@ -4,7 +4,7 @@
 		"name": "ewm-feature-comments",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "43384995",
-		"_collection_link": "https://acherm.postman.co/workspace/ACherm's-Workspace~fd120493-8382-456b-80c9-7659491539c4/collection/43384995-d60f230a-052e-4f8a-80d3-8a05ee3d418d?action=share&source=collection_link&creator=43384995"
+		"_collection_link": "https://acherm.postman.co/workspace/fd120493-8382-456b-80c9-7659491539c4/collection/43384995-d60f230a-052e-4f8a-80d3-8a05ee3d418d?action=share&source=collection_link&creator=43384995"
 	},
 	"item": [
 		{
@@ -15,8 +15,21 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
-							"}); "
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"userId\", response.id);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -28,7 +41,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"example123@practicummail.ru\",\r\n  \"name\": \"Иван Петров\"\r\n}",
+					"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"Иван Петров\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -56,8 +69,21 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"catId\", response.id);\r",
 							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -69,7 +95,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Какая-то категория\"\r\n}",
+					"raw": "{\r\n  \"name\": \"{{$randomWords}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -97,7 +123,10 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"eventId\", response.id);\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -110,7 +139,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"annotation\": \"Очень интересная и необычная аннотация\",\r\n  \"category\": 1,\r\n  \"description\": \"Очень интересное и необычное описание.\",\r\n  \"eventDate\": \"2027-10-11 23:10:05\",\r\n  \"location\": {\r\n    \"lat\": 55.75,\r\n    \"lon\": 37.62\r\n  },\r\n  \"paid\": true,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true,\r\n  \"title\": \"Просто событие\"\r\n}",
+					"raw": "{\r\n  \"annotation\": \"Очень интересная и необычная аннотация\",\r\n  \"category\": \"{{catId}}\",\r\n  \"description\": \"Очень интересное и необычное описание.\",\r\n  \"eventDate\": \"2027-10-11 23:10:05\",\r\n  \"location\": {\r\n    \"lat\": 55.75,\r\n    \"lon\": 37.62\r\n  },\r\n  \"paid\": true,\r\n  \"participantLimit\": 10,\r\n  \"requestModeration\": true,\r\n  \"title\": \"Просто событие\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -118,13 +147,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events",
+					"raw": "{{baseURL}}/users/{{userId}}/events",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events"
 					]
 				}
@@ -140,6 +169,7 @@
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 200\", function() {\r",
 							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"    pm.response.to.be.withBody;\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -160,14 +190,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/admin/events/1",
+					"raw": "{{baseURL}}/admin/events/{{eventId}}",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"admin",
 						"events",
-						"1"
+						"{{eventId}}"
 					]
 				}
 			},
@@ -181,7 +211,10 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"commId1\", response.id);\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -202,15 +235,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events/1/comments",
+					"raw": "{{baseURL}}/users/{{userId}}/events/{{eventId}}/comments",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events",
-						"1",
+						"{{eventId}}",
 						"comments"
 					]
 				}
@@ -225,7 +258,10 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"commId2\", response.id);\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -246,15 +282,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events/1/comments",
+					"raw": "{{baseURL}}/users/{{userId}}/events/{{eventId}}/comments",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events",
-						"1",
+						"{{eventId}}",
 						"comments"
 					]
 				}
@@ -270,6 +306,7 @@
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 200\", function() {\r",
 							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"    pm.response.to.be.withBody;\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -290,15 +327,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/comments/1",
+					"raw": "{{baseURL}}/users/{{userId}}/comments/{{commId1}}",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"comments",
-						"1"
+						"{{commId1}}"
 					]
 				}
 			},
@@ -313,6 +350,7 @@
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 200\", function() {\r",
 							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"    pm.response.to.be.withBody;\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -324,7 +362,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseURL}}/admin/comments?events=1,2&from=0&size=10",
+					"raw": "{{baseURL}}/admin/comments?events={{eventId}}&from=0&size=10",
 					"host": [
 						"{{baseURL}}"
 					],
@@ -335,7 +373,7 @@
 					"query": [
 						{
 							"key": "events",
-							"value": "1,2"
+							"value": "{{eventId}}"
 						},
 						{
 							"key": "from",
@@ -370,15 +408,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseURL}}/users/1/comments/1",
+					"raw": "{{baseURL}}/users/{{userId}}/comments/{{commId1}}",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"comments",
-						"1"
+						"{{commId1}}"
 					]
 				}
 			},
@@ -404,14 +442,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseURL}}/admin/comments/2",
+					"raw": "{{baseURL}}/admin/comments/{{commId2}}",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"2"
+						"{{commId2}}"
 					]
 				}
 			},
@@ -426,7 +464,20 @@
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 404\", function() {\r",
 							"    pm.expect(pm.response.code).to.equal(404);\r",
+							"    pm.response.to.be.withBody;\r",
 							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let newEventId = pm.variables.get(\"eventId\");\r",
+							"newEventId = parseInt(newEventId) + 100;\r",
+							"pm.variables.set(\"eventId\", newEventId);"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -446,15 +497,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events/3/comments",
+					"raw": "{{baseURL}}/users/{{userId}}/events/{{eventId}}/comments",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events",
-						"3",
+						"{{eventId}}",
 						"comments"
 					]
 				}
@@ -469,7 +520,10 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 201\", function() {\r",
+							"    const response = pm.response.json();\r",
 							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.variables.set(\"eventId\", response.id);\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -490,13 +544,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events",
+					"raw": "{{baseURL}}/users/{{userId}}/events",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events"
 					]
 				}
@@ -512,6 +566,7 @@
 						"exec": [
 							"pm.test(\"Ответ должен содержать код статуса 409\", function() {\r",
 							"    pm.expect(pm.response.code).to.equal(409);\r",
+							"    pm.response.to.be.withBody;\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -532,15 +587,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseURL}}/users/1/events/2/comments",
+					"raw": "{{baseURL}}/users/{{userId}}/events/{{eventId}}/comments",
 					"host": [
 						"{{baseURL}}"
 					],
 					"path": [
 						"users",
-						"1",
+						"{{userId}}",
 						"events",
-						"2",
+						"{{eventId}}",
 						"comments"
 					]
 				}
@@ -548,11 +603,52 @@
 			"response": []
 		}
 	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "http://localhost:8080",
-			"type": "default"
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "catId",
+			"value": "1"
+		},
+		{
+			"key": "userId",
+			"value": "1"
+		},
+		{
+			"key": "eventId",
+			"value": "1"
+		},
+		{
+			"key": "commId1",
+			"value": "1"
+		},
+		{
+			"key": "commId2",
+			"value": "2"
 		}
 	]
 }
