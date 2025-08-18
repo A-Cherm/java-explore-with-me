@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.config.QuerydslConfig;
-import ru.practicum.ewm.dto.NewUserDto;
-import ru.practicum.ewm.dto.UserDto;
+import ru.practicum.ewm.dto.user.NewUserDto;
+import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.User;
 

@@ -1,6 +1,6 @@
 package ru.practicum.ewm.guest.service;
 
-import ru.practicum.ewm.dto.CompilationDto;
+import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.model.Compilation;
 
 import java.util.List;

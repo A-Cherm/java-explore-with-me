@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.ewm.admin.service.AdminCategoryService;
-import ru.practicum.ewm.dto.CategoryDto;
+import ru.practicum.ewm.dto.category.CategoryDto;
 
 import java.nio.charset.StandardCharsets;
 

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.admin.service.AdminCategoryService;
 import ru.practicum.ewm.admin.service.AdminCategoryServiceImpl;
 import ru.practicum.ewm.config.QuerydslConfig;
-import ru.practicum.ewm.dto.CategoryDto;
+import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.Category;
 

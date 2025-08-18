@@ -2,8 +2,8 @@ package ru.practicum.ewm.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.ewm.dto.Location;
-import ru.practicum.ewm.dto.UpdateEventDto;
+import ru.practicum.ewm.dto.event.Location;
+import ru.practicum.ewm.dto.event.UpdateEventDto;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.ValidationException;
 
