@@ -1,8 +1,34 @@
 package ru.practicum.ewm.client;
 
-//@RestClientTest(StatsClient.class)
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.ViewStatsDto;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.util.UriUtils;
+import ru.practicum.ewm.config.ClientConfig;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+@RestClientTest(StatsClient.class)
+@Import(ClientConfig.class)
 class StatsClientTest {
-    /*
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final String apiUrl = "http://localhost:9090";
 
@@ -52,9 +78,10 @@ class StatsClientTest {
         List<ViewStatsDto> response = statsClient.getViewStats(now, now.plusDays(1), List.of("/a", "/b"));
 
         server.verify();
+
         assertThat(response, notNullValue());
         assertThat(response.size(), equalTo(2));
         assertThat(response, hasItem(hasProperty("uri", is("/a"))));
         assertThat(response, hasItem(hasProperty("uri", is("/b"))));
-    }*/
+    }
 }
