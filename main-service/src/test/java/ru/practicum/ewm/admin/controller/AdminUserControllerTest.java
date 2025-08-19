@@ -11,8 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.ewm.admin.service.UserService;
-import ru.practicum.ewm.dto.NewUserDto;
-import ru.practicum.ewm.dto.UserDto;
+import ru.practicum.ewm.dto.user.NewUserDto;
+import ru.practicum.ewm.dto.user.UserDto;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;

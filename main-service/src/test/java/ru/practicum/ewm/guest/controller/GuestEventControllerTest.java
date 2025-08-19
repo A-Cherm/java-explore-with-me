@@ -11,7 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.ewm.client.StatsClient;
-import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.category.CategoryDto;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventShortDto;
+import ru.practicum.ewm.dto.event.Location;
+import ru.practicum.ewm.dto.user.UserShortDto;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.model.EventState;
 
@@ -66,7 +70,7 @@ class GuestEventControllerTest {
     void testGetEvent() throws Exception {
         LocalDateTime date = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0, 0).plusYears(1);
         EventFullDto eventFullDto = new EventFullDto(1L, "a", new CategoryDto(1L, "a"),
-                2L, date, "b", date, new UserShortDto(1L, "a"),
+                List.of(), 2L, date, "b", date, new UserShortDto(1L, "a"),
                 new Location((float) 10.0, (float) 20.0), true, 5, date,
                 false, EventState.PENDING, "d", 10L);
 

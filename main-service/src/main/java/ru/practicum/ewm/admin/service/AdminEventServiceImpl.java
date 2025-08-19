@@ -10,14 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.UpdateEventDto;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.UpdateEventDto;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.guest.service.GuestCategoryService;
 import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.*;
+import ru.practicum.ewm.repository.CommentRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
 
@@ -25,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +38,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
+    private final CommentRepository commentRepository;
     private final GuestEventService guestEventService;
     private final GuestCategoryService categoryService;
     private final JPAQueryFactory queryFactory;
@@ -91,10 +95,14 @@ public class AdminEventServiceImpl implements AdminEventService {
                 .map(eventConfirmed -> eventConfirmed.getEvent().getId())
                 .toList();
         Map<Long, Long> views = guestEventService.getViewsForEvents(ids);
+        List<Comment> comments = commentRepository.findAllByEventIdInOrderByCreatedDesc(ids);
+        Map<Long, List<Comment>> commentsMap = new HashMap<>();
+        ids.forEach(id -> commentsMap.put(id, new ArrayList<>()));
+        comments.forEach(comment -> commentsMap.get(comment.getEventId()).add(comment));
 
         return events.stream()
-                .map(event1 -> EventMapper.mapToEventFullDto(event1.getEvent(),
-                        event1.getConfirmed(), views.get(event1.getEvent().getId())))
+                .map(event1 -> EventMapper.mapToEventFullDto(event1.getEvent(), event1.getConfirmed(),
+                        views.get(event1.getEvent().getId()), commentsMap.get(event1.getEvent().getId())))
                 .toList();
     }
 
@@ -144,7 +152,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         long views = guestEventService.getViewsForEvent(eventId);
+        List<Comment> comments = commentRepository.findAllByEventIdOrderByCreatedDesc(eventId);
 
-        return EventMapper.mapToEventFullDto(newEvent, confirmed, views);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, views, comments);
     }
 }

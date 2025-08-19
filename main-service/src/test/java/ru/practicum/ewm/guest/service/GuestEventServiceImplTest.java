@@ -11,9 +11,16 @@ import org.springframework.context.annotation.Import;
 import ru.practicum.ewm.admin.service.*;
 import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.config.QuerydslConfig;
-import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.category.CategoryDto;
+import ru.practicum.ewm.dto.comment.CommentDto;
+import ru.practicum.ewm.dto.comment.NewCommentDto;
+import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.dto.user.NewUserDto;
+import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.Event;
+import ru.practicum.ewm.user.service.UserCommentService;
+import ru.practicum.ewm.user.service.UserCommentServiceImpl;
 import ru.practicum.ewm.user.service.UserEventService;
 import ru.practicum.ewm.user.service.UserEventServiceImpl;
 
@@ -31,7 +38,7 @@ import static org.mockito.Mockito.when;
 @DataJpaTest
 @Import({GuestEventServiceImpl.class, GuestCategoryServiceImpl.class, QuerydslConfig.class,
         UserServiceImpl.class, AdminCategoryServiceImpl.class, UserEventServiceImpl.class,
-        AdminEventServiceImpl.class})
+        AdminEventServiceImpl.class, UserCommentServiceImpl.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class GuestEventServiceImplTest {
     private final GuestEventService guestEventService;
@@ -39,6 +46,7 @@ class GuestEventServiceImplTest {
     private final AdminCategoryService categoryService;
     private final UserEventService userEventService;
     private final AdminEventService adminEventService;
+    private final UserCommentService userCommentService;
     @MockBean
     private StatsClient statsClient;
 
@@ -121,11 +129,16 @@ class GuestEventServiceImplTest {
 
     @Test
     void testGetEvent() {
+        CommentDto comment = userCommentService.createComment(userDto1.getId(), eventFullDto1.getId(),
+                new NewCommentDto("aaa"));
         EventFullDto event = guestEventService.getEvent(eventFullDto1.getId());
 
         assertThat(event)
+                .hasFieldOrProperty("comments")
                 .usingRecursiveComparison()
+                .ignoringFields("comments")
                 .isEqualTo(eventFullDto1);
+        assertThat(event.getComments()).contains(comment);
     }
 
     @Test

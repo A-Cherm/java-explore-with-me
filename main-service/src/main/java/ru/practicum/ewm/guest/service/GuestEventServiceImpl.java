@@ -13,12 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
 import ru.practicum.ewm.client.StatsClient;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.*;
+import ru.practicum.ewm.repository.CommentRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
 
@@ -35,6 +36,7 @@ public class GuestEventServiceImpl implements GuestEventService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
+    private final CommentRepository commentRepository;
     private final JPAQueryFactory queryFactory;
     private final StatsClient statsClient;
 
@@ -127,7 +129,9 @@ public class GuestEventServiceImpl implements GuestEventService {
         if (event.getState() == EventState.PUBLISHED) {
             long views = getViewsForEvent(id);
             long confirmed = requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
-            return EventMapper.mapToEventFullDto(event, confirmed, views);
+            List<Comment> comments = commentRepository.findAllByEventIdOrderByCreatedDesc(id);
+
+            return EventMapper.mapToEventFullDto(event, confirmed, views, comments);
         } else {
             throw new NotFoundException("Не найдено событие", "Нет события с id = " + id);
         }

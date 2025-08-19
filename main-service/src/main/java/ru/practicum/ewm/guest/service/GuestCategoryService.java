@@ -1,6 +1,6 @@
 package ru.practicum.ewm.guest.service;
 
-import ru.practicum.ewm.dto.CategoryDto;
+import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.model.Category;
 
 import java.util.List;

@@ -10,7 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.service.UserService;
-import ru.practicum.ewm.dto.*;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventShortDto;
+import ru.practicum.ewm.dto.event.NewEventDto;
+import ru.practicum.ewm.dto.event.UpdateEventDto;
+import ru.practicum.ewm.dto.request.RequestDto;
+import ru.practicum.ewm.dto.request.RequestStatusUpdateRequest;
+import ru.practicum.ewm.dto.request.RequestStatusUpdateResult;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.guest.service.GuestCategoryService;
@@ -18,6 +24,7 @@ import ru.practicum.ewm.guest.service.GuestEventService;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.*;
+import ru.practicum.ewm.repository.CommentRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
 
@@ -33,6 +40,7 @@ import java.util.Map;
 public class UserEventServiceImpl implements UserEventService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final GuestEventService guestEventService;
     private final GuestCategoryService categoryService;
     private final UserService userService;
@@ -76,7 +84,7 @@ public class UserEventServiceImpl implements UserEventService {
         Event.validateEventDate(eventDto.getEventDate());
         Event event = EventMapper.mapToEvent(eventDto, user, category);
 
-        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L, 0L);
+        return EventMapper.mapToEventFullDto(eventRepository.save(event), 0L, 0L, List.of());
     }
 
     @Override
@@ -84,8 +92,9 @@ public class UserEventServiceImpl implements UserEventService {
         Event event = guestEventService.validateEvent(eventId);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         long views = guestEventService.getViewsForEvent(eventId);
+        List<Comment> comments = commentRepository.findAllByEventIdOrderByCreatedDesc(eventId);
 
-        return EventMapper.mapToEventFullDto(event, confirmed, views);
+        return EventMapper.mapToEventFullDto(event, confirmed, views, comments);
     }
 
     @Override
@@ -118,8 +127,9 @@ public class UserEventServiceImpl implements UserEventService {
         Event newEvent = eventRepository.save(event);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         long views = guestEventService.getViewsForEvent(eventId);
+        List<Comment> comments = commentRepository.findAllByEventIdOrderByCreatedDesc(eventId);
 
-        return EventMapper.mapToEventFullDto(newEvent, confirmed, views);
+        return EventMapper.mapToEventFullDto(newEvent, confirmed, views, comments);
     }
 
     @Override

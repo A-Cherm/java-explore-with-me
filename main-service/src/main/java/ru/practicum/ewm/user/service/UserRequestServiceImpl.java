@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.service.UserService;
-import ru.practicum.ewm.dto.RequestDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.guest.service.GuestEventService;

@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.admin.service.AdminEventService;
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.UpdateEventDto;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.UpdateEventDto;
 import ru.practicum.ewm.model.EventState;
 
 import java.util.List;

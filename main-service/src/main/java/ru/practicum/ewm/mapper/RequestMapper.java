@@ -1,6 +1,6 @@
 package ru.practicum.ewm.mapper;
 
-import ru.practicum.ewm.dto.RequestDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.model.Request;
 import ru.practicum.ewm.model.RequestStatus;

@@ -1,15 +1,13 @@
 package ru.practicum.ewm.mapper;
 
-import ru.practicum.ewm.dto.EventFullDto;
-import ru.practicum.ewm.dto.EventShortDto;
-import ru.practicum.ewm.dto.Location;
-import ru.practicum.ewm.dto.NewEventDto;
-import ru.practicum.ewm.model.Category;
-import ru.practicum.ewm.model.Event;
-import ru.practicum.ewm.model.EventState;
-import ru.practicum.ewm.model.User;
+import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventShortDto;
+import ru.practicum.ewm.dto.event.Location;
+import ru.practicum.ewm.dto.event.NewEventDto;
+import ru.practicum.ewm.model.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EventMapper {
     public static Event mapToEvent(NewEventDto eventDto, User user, Category category) {
@@ -32,11 +30,13 @@ public class EventMapper {
         );
     }
 
-    public static EventFullDto mapToEventFullDto(Event event, Long confirmed, Long views) {
+    public static EventFullDto mapToEventFullDto(Event event, Long confirmed,
+                                                 Long views, List<Comment> comments) {
         return new EventFullDto(
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.mapToCategoryDto(event.getCategory()),
+                comments.stream().map(CommentMapper::mapToCommentDto).toList(),
                 confirmed,
                 event.getCreatedOn(),
                 event.getDescription(),
