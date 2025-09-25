@@ -1,5 +1,10 @@
 package ru.practicum.ewm.guest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +21,12 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Guest: категории", description = "Просмотр категорий событий")
 public class GuestCategoryController {
     private final GuestCategoryService categoryService;
 
     @GetMapping
+    @Operation(summary = "Получение списка категорий")
     public List<CategoryDto> getCategories(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
         List<CategoryDto> categories = categoryService.getCategories(from, size);
@@ -29,7 +36,12 @@ public class GuestCategoryController {
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getCategory(@PathVariable Long catId) {
+    @Operation(summary = "Получение категории",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "Нет категории с данным id", content = @Content)
+            })
+    public CategoryDto getCategory(@PathVariable @Parameter(description = "Id категории") Long catId) {
         CategoryDto category = categoryService.getCategory(catId);
 
         log.info("Возвращается категория: {}", category);

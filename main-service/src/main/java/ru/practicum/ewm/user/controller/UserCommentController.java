@@ -1,5 +1,10 @@
 package ru.practicum.ewm.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +19,20 @@ import ru.practicum.ewm.user.service.UserCommentService;
 @RequestMapping("/users/{userId}")
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "User: комментарии", description = "Управление комментариями")
 public class UserCommentController {
     private final UserCommentService commentService;
 
     @PostMapping("/events/{eventId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createComment(@PathVariable Long userId,
-                                    @PathVariable Long eventId,
+    @Operation(summary = "Создание комментария",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Комментарий создан"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные данные запроса", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Нет события с данным id", content = @Content)
+            })
+    public CommentDto createComment(@PathVariable @Parameter(description = "Id пользователя") Long userId,
+                                    @PathVariable @Parameter(description = "Id события") Long eventId,
                                     @Valid @RequestBody NewCommentDto commentDto) {
         CommentDto comment = commentService.createComment(userId, eventId, commentDto);
 
@@ -29,8 +41,14 @@ public class UserCommentController {
     }
 
     @PatchMapping("/comments/{commentId}")
-    public CommentDto updateComment(@PathVariable Long userId,
-                                    @PathVariable Long commentId,
+    @Operation(summary = "Обновление комментария",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные данные запроса", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Нет комментария с данным id", content = @Content)
+            })
+    public CommentDto updateComment(@PathVariable @Parameter(description = "Id пользователя") Long userId,
+                                    @PathVariable @Parameter(description = "Id комментария") Long commentId,
                                     @Valid @RequestBody UpdateCommentDto commentDto) {
         CommentDto comment = commentService.updateComment(userId, commentId, commentDto);
 
@@ -40,8 +58,13 @@ public class UserCommentController {
 
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable Long userId,
-                              @PathVariable Long commentId) {
+    @Operation(summary = "Удаление комментария",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Комментарий удалён"),
+                    @ApiResponse(responseCode = "404", description = "Нет комментария с данным id", content = @Content)
+            })
+    public void deleteComment(@PathVariable @Parameter(description = "Id пользователя") Long userId,
+                              @PathVariable @Parameter(description = "Id комментария") Long commentId) {
         commentService.deleteComment(userId, commentId);
         log.info("Удалён комментарий с id = {}", commentId);
     }

@@ -1,5 +1,10 @@
 package ru.practicum.ewm.admin.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,13 +24,21 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Admin: пользователи", description = "Управление пользователями")
 public class AdminUserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
-                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
+    @Operation(summary = "Получение списка пользователей",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные данные запроса", content = @Content)
+            })
+    public List<UserDto> getUsers(
+            @RequestParam(required = false) @Parameter(description = "Список id пользователей") List<Long> ids,
+            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+            @Positive @RequestParam(defaultValue = "10") Integer size
+    ) {
         List<UserDto> users = userService.getUsers(ids, from, size);
 
         log.info("Возвращаются пользователи: {}", users);
@@ -34,6 +47,11 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Создание пользователя",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Пользователь создан"),
+                    @ApiResponse(responseCode = "400", description = "Некорректные данные пользователя", content = @Content)
+            })
     public UserDto createUser(@Valid @RequestBody NewUserDto userDto) {
         UserDto createdUser = userService.createUser(userDto);
 
@@ -43,6 +61,11 @@ public class AdminUserController {
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Удаление пользователя",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Пользователь удалён"),
+                    @ApiResponse(responseCode = "404", description = "Нет пользователя с данным id")
+            })
     public void deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         log.info("Удалён пользователь с id = {}", userId);

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.handler;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 
+@Hidden
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler
