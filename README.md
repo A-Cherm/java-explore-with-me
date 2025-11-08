@@ -43,7 +43,7 @@
 ## Документация
 
 Подробное описание эндпойнтов основного сервиса доступно в OpenApi 
-[документации](https://editor-next.swagger.io/?raw=https://github.com/A-Cherm/java-explore-with-me/blob/main/openapi.yaml).
+[документации](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/A-Cherm/java-explore-with-me/refs/heads/main/openapi.yaml).
 
 Ниже приведено краткое описание функций сервиса.
 
